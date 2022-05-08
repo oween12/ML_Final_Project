@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 '''
 Utility method that will convert the original dataset to numpy arrays.
@@ -26,20 +27,46 @@ def preprocess():
     #Create arrays and separate labels from images
     labels = raw_filtered[:,0]
     images = np.empty((raw_filtered.shape[0], 2304))
+    images_scar = np.empty((raw_filtered.shape[0], 2304))
 
-    #Normalize the images & store them in array
+    #Store images in arrays
     for i in range(images.shape[0]):            
         images[i] = np.fromstring(raw_filtered[i][2], dtype=int, sep=" ")
+        images_scar[i] = np.fromstring(raw_filtered[i][2], dtype=int, sep=" ")
+
+    #Add Random Scars
+    for i in range(images_scar.shape[0]):
+        shape = np.random.randint(2) + 1
+        x = np.random.randint(24) + 12
+        y = 48 * (np.random.randint(24) + 12)
+        l = np.random.randint(7)
+        w = np.random.randint(3)
+        
+        if shape == 1: #vertical rectangle
+            for j in range(l):
+                for k in range(w):
+                    images_scar[i][x + y + (48*j) + k] = 0
+        elif shape == 2: #horizontal rectangle
+            for j in range(l):
+                for k in range(w):
+                    images_scar[i][x + y + (48*k) + j] = 0
+
+    #Normalize the images
+    for i in range(images.shape[0]):
         images[i] = (images[i] - np.mean(images[i]))/(np.std(images[i]))
+        images_scar[i] = (images_scar[i] - np.mean(images_scar[i]))/(np.std(images_scar[i]))
     
     #Save images and labels to their respective files
     eighty_percent = np.ceil((.8 * images.shape[0])).astype(int)
     ten_percent = np.ceil((.1 * images.shape[0])).astype(int)
     np.save(os.path.join(DATA_DIR, "train_images"), images[:eighty_percent])
+    np.save(os.path.join(DATA_DIR, "train_scar_images"), images_scar[:eighty_percent])
     np.save(os.path.join(DATA_DIR, "train_labels"), labels[:eighty_percent])
     np.save(os.path.join(DATA_DIR, "dev_images"), images[eighty_percent:eighty_percent + ten_percent])
+    np.save(os.path.join(DATA_DIR, "dev_images_scar"), images_scar[eighty_percent:eighty_percent + ten_percent])
     np.save(os.path.join(DATA_DIR, "dev_labels"), labels[eighty_percent:eighty_percent + ten_percent])
     np.save(os.path.join(DATA_DIR, "test_images"), images[eighty_percent + ten_percent:])
+    np.save(os.path.join(DATA_DIR, "test_images_scar"), images_scar[eighty_percent + ten_percent:])
     np.save(os.path.join(DATA_DIR, "test_labels"), labels[eighty_percent + ten_percent:])
 
 preprocess()
