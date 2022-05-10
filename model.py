@@ -17,7 +17,7 @@ class FER_CNN(torch.nn.Module):
         self.conv6 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1)
         self.conv7 = torch.nn.Conv2d(in_channels=128, out_channels=32, kernel_size=3, padding=1)
         self.conv8 = torch.nn.Conv2d(in_channels=32, out_channels=7, kernel_size=3, padding=1)
-        self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool = torch.nn.MaxPool2d(kernel_size=2, stride=2)
         self.pool2 = torch.nn.MaxPool2d(kernel_size=4)
         self.norm1 = torch.nn.BatchNorm2d(32)
         self.norm2 = torch.nn.BatchNorm2d(64)
@@ -30,16 +30,16 @@ class FER_CNN(torch.nn.Module):
         x = F.relu(self.norm1(self.conv1(x)))
         x = F.relu(self.norm1(self.conv2(x)))
         x = F.relu(self.norm1(self.conv2(x)))
-        x = self.pool1(x)
+        x = self.pool(x)
         x = F.relu(self.norm2(self.conv3(x)))
         x = F.relu(self.norm2(self.conv4(x)))
         x = F.relu(self.norm2(self.conv4(x)))
-        x = self.pool1(x)
+        x = self.pool(x)
         x = self.dropout(x)
         x = F.relu(self.norm3(self.conv5(x)))
         x = F.relu(self.norm3(self.conv6(x)))
         x = F.relu(self.norm3(self.conv6(x)))
-        x = self.pool1(x)
+        x = self.pool(x)
         x = F.relu(self.norm1(self.conv7(x)))
         x = F.relu(self.norm4(self.conv8(x)))
         x = self.pool2(x)
@@ -57,7 +57,8 @@ if __name__ == "__main__":
     LABEL_TEST_FILE = "test_labels.npy"
 
     MODEL_SAVE_FILE = "best_model"
-    GRAPH_SAVE_FILE = "best_graph"
+    GRAPH1_SAVE_FILE = "best_acc_graph"
+    GRAPH2_SAVE_FILE = "best_loss_graph"
     LEARNING_RATE = .05
     BATCH_SIZE = 256
     EPOCHS = 1000
@@ -65,6 +66,7 @@ if __name__ == "__main__":
     train_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
     dev_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
     test_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
+    train_loss_arr = np.full(int(EPOCHS/100), 0, dtype=float)
 
     flat_train_images = np.load(os.path.join(DATA_DIR, IMG_TRAIN_FILE))
     flat_dev_images = np.load(os.path.join(DATA_DIR, IMG_DEV_FILE))
@@ -97,6 +99,7 @@ if __name__ == "__main__":
             train_acc_arr[int(step/100)] = train_acc
             dev_acc_arr[int(step/100)] = dev_acc
             test_acc_arr[int(step/100)] = test_acc
+            train_loss_arr[int(step/100)] = train_loss
 
             step_metrics = {
                 'step': step, 
@@ -109,5 +112,6 @@ if __name__ == "__main__":
             }
 
             print(f"On step {step}:\tTrain loss {train_loss}\t| Dev acc {dev_acc}\t")
-    generate_plot(train_acc_arr, dev_acc_arr, test_acc_arr, GRAPH_SAVE_FILE)
+    generate_plot(train_acc_arr, dev_acc_arr, test_acc_arr, GRAPH1_SAVE_FILE)
+    generate_plot2(train_loss_arr, GRAPH2_SAVE_FILE)
     torch.save(model, MODEL_SAVE_FILE)
