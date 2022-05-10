@@ -8,18 +8,41 @@ from generate_plot import *
 
 class FER_CNN(torch.nn.Module):
     def __init__(self):
-        """
-        """
         super().__init__()
-        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=7, kernel_size=3)
-        self.pool1 = torch.nn.MaxPool2d(kernel_size=36, padding=1)
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1)
+        self.conv2 = torch.nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, padding=1)
+        self.conv3 = torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
+        self.conv4 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1)
+        self.conv5 = torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1)
+        self.conv6 = torch.nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1)
+        self.conv7 = torch.nn.Conv2d(in_channels=128, out_channels=32, kernel_size=3, padding=1)
+        self.conv8 = torch.nn.Conv2d(in_channels=32, out_channels=7, kernel_size=3, padding=1)
+        self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool2 = torch.nn.MaxPool2d(kernel_size=4)
+        self.norm1 = torch.nn.BatchNorm2d(32)
+        self.norm2 = torch.nn.BatchNorm2d(64)
+        self.norm3 = torch.nn.BatchNorm2d(128)
+        self.norm4 = torch.nn.BatchNorm2d(7)
+        self.dropout = torch.nn.Dropout(0.25)
 
     def forward(self, x):
-        """
-        """
         x = x.reshape(x.shape[0], 1, 48, 48)
-        x = F.relu(self.conv1(x))
+        x = F.relu(self.norm1(self.conv1(x)))
+        x = F.relu(self.norm1(self.conv2(x)))
+        x = F.relu(self.norm1(self.conv2(x)))
         x = self.pool1(x)
+        x = F.relu(self.norm2(self.conv3(x)))
+        x = F.relu(self.norm2(self.conv4(x)))
+        x = F.relu(self.norm2(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.dropout(x)
+        x = F.relu(self.norm3(self.conv5(x)))
+        x = F.relu(self.norm3(self.conv6(x)))
+        x = F.relu(self.norm3(self.conv6(x)))
+        x = self.pool1(x)
+        x = F.relu(self.norm1(self.conv7(x)))
+        x = F.relu(self.norm4(self.conv8(x)))
+        x = self.pool2(x)
         x = x.reshape(x.shape[0], 7)
         return x
 
@@ -33,9 +56,10 @@ if __name__ == "__main__":
     LABEL_DEV_FILE = "dev_labels.npy"
     LABEL_TEST_FILE = "test_labels.npy"
 
-    MODEL_SAVE_DIR = "model"
-    LEARNING_RATE = .01
-    BATCH_SIZE = 1000
+    MODEL_SAVE_FILE = "best_model"
+    GRAPH_SAVE_FILE = "best_graph"
+    LEARNING_RATE = .05
+    BATCH_SIZE = 256
     EPOCHS = 1000
 
     train_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
@@ -85,10 +109,5 @@ if __name__ == "__main__":
             }
 
             print(f"On step {step}:\tTrain loss {train_loss}\t| Dev acc {dev_acc}\t")
-    generate_plot(train_acc_arr, dev_acc_arr, test_acc_arr, "no")
-    
-
-
-
-
-            
+    generate_plot(train_acc_arr, dev_acc_arr, test_acc_arr, GRAPH_SAVE_FILE)
+    torch.save(model, MODEL_SAVE_FILE)

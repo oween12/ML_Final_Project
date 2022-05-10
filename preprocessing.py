@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 '''
 Utility method that will convert the original dataset to numpy arrays.
 Removes any instances of black boxes.
+Adds random vertical or horizontal scars of varying lengths and widths.
 Normalizes the images by subtracting the mean and dividing by stdv.
 Saves the arrays as .npy files with the labels and images separate.
 '''

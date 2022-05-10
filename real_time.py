@@ -2,6 +2,13 @@ import cv2
 import torch
 from model import *
 
+'''
+File to be run in order to do real-time emotion classification.
+Uses a pre-made haar_cascade classifier for facial recognition.
+Uses our personalized FER_CNN for emotion classification.
+Outputs a box around the face with the classified emotion in real time.
+'''
+
 face_haar_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 model = torch.load("best_model")
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']

@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import os
 
 def generate_plot(a1, a2, a3, file):
+    '''
+    Prints a graph of accuracies vs epochs.
+    Training (a1) accuracy in red.
+    Dev (a2) accuracy in green.
+    Test (a3) accuracy in blue.
+    Saves file to the name (file) as a .png in the "graphs" directory.
+    '''
     epochs = np.arange(0, a1.size * 100, 100)
     plt.plot(epochs, a1, 'r', label='Training Accuracy')
     plt.plot(epochs, a2, 'g', label='Dev Accuracy')
