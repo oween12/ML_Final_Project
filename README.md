@@ -7,6 +7,7 @@ preprocessing.py - This is the file that parses the original dataset.  It will p
 model.py - This is the file that creates the FER_CNN model, the facial emotion recognition convolutional neural network.  Here we define the different layers of the model and the forward() function.  Then we have the main function which actually trains the model.  At the top of main, one should specify the constant variables tailored towards where they store the data and where they want to save the graph and model.  Main will compute the train, dev, and test accuracies, outputting them every 100 steps.  It then calls generate_plot() and saves the model.
 
 accuracies.py - This is a utility function that will compute the % accuracies and entropy of the models predictions compared to actual labels.
+
 generate_plot.py - This is a utility function that will create and save the graph of the accuracies vs epochs as well as the loss vs epochs.
 
 real_time.py - This is the file that will run the real time video classifier.
