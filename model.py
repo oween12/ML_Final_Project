@@ -67,6 +67,8 @@ if __name__ == "__main__":
     dev_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
     test_acc_arr = np.full(int(EPOCHS/100), 0, dtype=float)
     train_loss_arr = np.full(int(EPOCHS/100), 0, dtype=float)
+    dev_loss_arr = np.full(int(EPOCHS/100), 0, dtype=float)
+    test_loss_arr = np.full(int(EPOCHS/100), 0, dtype=float)
 
     flat_train_images = np.load(os.path.join(DATA_DIR, IMG_TRAIN_FILE))
     flat_dev_images = np.load(os.path.join(DATA_DIR, IMG_DEV_FILE))
@@ -100,6 +102,8 @@ if __name__ == "__main__":
             dev_acc_arr[int(step/100)] = dev_acc
             test_acc_arr[int(step/100)] = test_acc
             train_loss_arr[int(step/100)] = train_loss
+            dev_loss_arr[int(step/100)] = dev_loss
+            test_loss_arr[int(step/100)] = test_loss
 
             step_metrics = {
                 'step': step, 
@@ -113,5 +117,5 @@ if __name__ == "__main__":
 
             print(f"On step {step}:\tTrain loss {train_loss}\t| Dev acc {dev_acc}\t")
     generate_plot(train_acc_arr, dev_acc_arr, test_acc_arr, GRAPH1_SAVE_FILE)
-    generate_plot2(train_loss_arr, GRAPH2_SAVE_FILE)
+    generate_plot2(train_loss_arr, dev_loss_arr, test_loss_arr, GRAPH2_SAVE_FILE)
     torch.save(model, MODEL_SAVE_FILE)
