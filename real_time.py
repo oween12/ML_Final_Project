@@ -10,7 +10,7 @@ Outputs a box around the face with the classified emotion in real time.
 '''
 
 face_haar_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-model = torch.load("best_model")
+model = torch.load("best_model.pt")
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 
 cap = cv2.VideoCapture(0)
@@ -27,8 +27,10 @@ while True:
         face_gray = cv2.resize(face_gray, (48,48), interpolation=cv2.INTER_AREA)
 
         if np.sum([face_gray]) != 0:
+            cur_face = face_gray.flatten()
+            cur_face = (cur_face - np.mean(cur_face))/(np.std(cur_face))
             flat = np.empty((1,(48 * 48)))
-            flat[0] = face_gray.flatten()
+            flat[0] = cur_face
             flat_torch = torch.from_numpy(flat.astype(np.float32))
             logits = model(flat_torch)
             label = torch.max(logits, 1)[1]
@@ -42,4 +44,3 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-
